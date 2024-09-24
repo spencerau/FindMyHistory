@@ -70,23 +70,48 @@ class LogManager(object):
             os.makedirs(log_folder)
         path = os.path.join(log_folder, name + '.csv')
 
-        if not os.path.exists(path):
+        # If file exists, read it and modify the last column
+        if os.path.exists(path):
+            with open(path, 'r') as f:
+                reader = csv.reader(f)
+                rows = list(reader)
+
+            # Assuming that the last column is the one you want to overwrite
+            if len(rows) > 1:
+                header = rows[0]
+                last_row = rows[-1]
+                for i, key in enumerate(self._keys):
+                    if key == self._timestamp_key:
+                        last_row[i] = data[key]  # Update the last column value
+                rows[-1] = last_row
+
+            # Rewrite the file with the updated last row
+            with open(path, 'w') as f:
+                writer = csv.writer(f)
+                writer.writerows(rows)
+
+        # If file doesn't exist, create it and write the data
+        else:
             with open(path, 'w') as f:
                 writer = csv.writer(f)
                 writer.writerow(self._keys)
+                writer.writerow([data[k] for k in self._keys])
 
-        with open(path, 'a') as f:
-            writer = csv.writer(f)
-            writer.writerow([data[k] for k in self._keys])
 
-    def refresh_log(self):
+    def refresh_log(self, device_name):
         items_dict = self._get_items_dict()
-        for name in items_dict:
-            if (name not in self._latest_log or
-                    self._latest_log[name] != items_dict[name]):
-                self._save_log(name, items_dict[name])
-                self._latest_log[name] = items_dict[name]
-                self._log_cnt[name] += 1
+        
+        # Check if the specified device is in the items_dict
+        if device_name in items_dict:
+            if (device_name not in self._latest_log or
+                    self._latest_log[device_name] != items_dict[device_name]):
+                # Only save and update log for the specified device
+                self._save_log(device_name, items_dict[device_name])
+                self._latest_log[device_name] = items_dict[device_name]
+                self._log_cnt[device_name] += 1
+        else:
+            raise ValueError(f"Device '{device_name}' not found in the logs.")
+
 
     def get_latest_log(self):
         return self._latest_log, self._log_cnt

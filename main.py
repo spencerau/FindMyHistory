@@ -75,7 +75,6 @@ def parse_args():
 
 def main(stdscr, args):
     stdscr.clear()
-    args = parse_args()
     log_manager = LogManager(
         findmy_files=[os.path.expanduser(f) for f in FINDMY_FILES],
         store_keys=args.store_keys,
@@ -87,16 +86,22 @@ def main(stdscr, args):
         null_str=NULL_STR,
         date_format=DATE_FORMAT,
         no_date_folder=args.no_date_folder)
-    while True:
-        log_manager.refresh_log()
+
+    device_name = "Sandie’s AirTag _NULL_J09LF9X5P0GV"
+
+    while True:  # Add the infinite loop here
+        # Refresh log for the specified device and update CSV once
+        log_manager.refresh_log(device_name)
+
         latest_log, log_cnt = log_manager.get_latest_log()
         table = []
         for name, log in latest_log.items():
+            if name != device_name:  # Only process the specified device
+                continue
             latest_time = log[args.timestamp_key]
             if isinstance(latest_time, int) or isinstance(latest_time, float):
                 latest_time = datetime.fromtimestamp(
-                    float(latest_time) / 1000.)
-                latest_time = latest_time.strftime(TIME_FORMAT)
+                    float(latest_time) / 1000.).strftime(TIME_FORMAT)
             table.append([name, latest_time, log_cnt[name]])
         table = tabulate(
             table,
@@ -112,7 +117,9 @@ def main(stdscr, args):
             pass
         stdscr.refresh()
 
-        time.sleep(float(args.refresh) / 1000)
+        time.sleep(float(args.refresh) / 1000)  # Sleep for the refresh interval
+
+
 
 
 if __name__ == "__main__":
