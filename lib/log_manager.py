@@ -76,7 +76,7 @@ class LogManager(object):
                 reader = csv.reader(f)
                 rows = list(reader)
 
-            # Assuming that the last column is the one you want to overwrite
+            # last column is the one to overwrite
             if len(rows) > 1:
                 header = rows[0]
                 last_row = rows[-1]

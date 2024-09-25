@@ -90,7 +90,7 @@ def main(stdscr, args):
     device_name = "Sandie’s AirTag _NULL_J09LF9X5P0GV"
 
     while True: 
-        # Refresh log for the specified device and update CSV once
+        # Refresh log for the specified device and update CSV
         log_manager.refresh_log(device_name)
 
         latest_log, log_cnt = log_manager.get_latest_log()
