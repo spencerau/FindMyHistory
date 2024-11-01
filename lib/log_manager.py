@@ -61,6 +61,7 @@ class LogManager(object):
                                 'Access has been granted to Terminal.')
         return items_dict
 
+    
     def _save_log(self, name, data):
         log_folder = self._log_folder
         if not self._no_date_folder:
@@ -70,32 +71,11 @@ class LogManager(object):
             os.makedirs(log_folder)
         path = os.path.join(log_folder, name + '.csv')
 
-        # If file exists, read it and modify the last column
-        if os.path.exists(path):
-            with open(path, 'r') as f:
-                reader = csv.reader(f)
-                rows = list(reader)
-
-            # last column is the one to overwrite
-            if len(rows) > 1:
-                header = rows[0]
-                last_row = rows[-1]
-                for i, key in enumerate(self._keys):
-                    if key == self._timestamp_key:
-                        last_row[i] = data[key]  # Update the last column value
-                rows[-1] = last_row
-
-            # Rewrite the file with the updated last row
-            with open(path, 'w') as f:
-                writer = csv.writer(f)
-                writer.writerows(rows)
-
-        # If file doesn't exist, create it and write the data
-        else:
-            with open(path, 'w') as f:
-                writer = csv.writer(f)
-                writer.writerow(self._keys)
-                writer.writerow([data[k] for k in self._keys])
+        # Overwrite the CSV file with only the latest data
+        with open(path, 'w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(self._keys)
+            writer.writerow([data[k] for k in self._keys])
 
 
     def refresh_log(self, device_name):
