@@ -64,9 +64,9 @@ class LogManager(object):
     
     def _save_log(self, name, data):
         log_folder = self._log_folder
-        if not self._no_date_folder:
-            log_folder = os.path.join(
-                log_folder, datetime.now().strftime(self._date_format))
+        # if not self._no_date_folder:
+            # log_folder = os.path.join(
+            #     log_folder, datetime.now().strftime(self._date_format))
         if not os.path.exists(log_folder):
             os.makedirs(log_folder)
         path = os.path.join(log_folder, name + '.csv')
@@ -75,7 +75,7 @@ class LogManager(object):
         with open(path, 'w', newline='') as f:
             writer = csv.writer(f)
             writer.writerow(self._keys)
-            writer.writerow([data[k] for k in self._keys])
+            writer.writerow([data[k] for k in self._keys]) 
 
 
     def refresh_log(self, device_name):
